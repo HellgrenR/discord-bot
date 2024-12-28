@@ -19,6 +19,15 @@ class Bot(commands.Bot):
       async def hello(ctx):
           await ctx.send(f"Hello! I'm {self.user}. How can I assist you today?")
 
+      @self.command()
+      async def join(ctx):
+          channel = ctx.author.voice.channel
+          await channel.connect()
+
+      @self.command()
+      async def leave(ctx):
+          await ctx.voice_client.disconnect()
+
   def add_events(self):
       @self.event
       async def on_ready():
