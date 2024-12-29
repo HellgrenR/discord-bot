@@ -17,3 +17,14 @@ def get_audio_url(url: str) -> str:
     raise VideoTooLongError("Video exceeds 1 hour")
 
   return audio_url
+
+async def find_audio(ctx, url: str) -> str:
+  try:
+    audio_url = get_audio_url(url=url)
+    return audio_url
+  except yt_dlp.DownloadError:
+    await ctx.send("Could not find audio")
+    return None
+  except VideoTooLongError:
+    await ctx.send("Video too long")
+    return None
