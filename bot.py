@@ -72,7 +72,7 @@ class Bot(commands.Bot):
   
   async def play_audio(self, ctx):
     if len(self.music_queue) == 0:
-      return
+      await ctx.voice_client.disconnect()
 
     audio_url = await AudioHandler.find_audio(ctx=ctx, url=self.music_queue[0])
 
