@@ -7,10 +7,22 @@ class Bot(commands.Bot):
     intents.message_content = True
     super().__init__(command_prefix=prefix, intents=intents)
 
+    # Add a queue of music
+
     self.add_commands()
     self.add_events()
 
   def add_commands(self):
+      @self.command()
+      async def play(ctx, *, url):
+          voice_channel = ctx.author.voice.channel
+          await voice_channel.connect()
+          # Add validation to check if the URL is valid
+
+          # Add code to make the bot play the audio from the URL
+
+          # Disconnect bot if no longer playing
+
       @self.command()
       async def ping(ctx):
           await ctx.send('pong')
