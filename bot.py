@@ -34,12 +34,14 @@ class Bot(commands.Bot):
 
         # Add audio URL to queue
         self.music_queue.append(audio_url)
-        ctx.send("Audio added to queue")
-        ctx.send(f"Music queue: {self.music_queue}")
+        await ctx.send("Audio added to queue")
+        await ctx.send(f"Amount of songs: {len(self.music_queue)}")
 
         # Play audio
         if not ctx.voice_client.is_playing():
           self.play_audio(ctx=ctx)
+
+        # if not playing for 10 secs, disconnect
 
       @self.command()
       async def join(ctx):
@@ -67,10 +69,10 @@ class Bot(commands.Bot):
     except AttributeError:
       await ctx.send("User not in voice channel")
       return None
-    
+  
   def play_audio(self, ctx):
-    voice_client = ctx.voice_client
-    source = discord.FFmpegPCMAudio(self.music_queue[0])
-    voice_client.play(source)
-    self.music_queue.pop(0)
-    source = discord.FFmpegPCMAudio(self.music_queue[0])
+    if len(self.music_queue) > 0:
+        voice_client = ctx.voice_client
+        source = discord.FFmpegPCMAudio(self.music_queue[0])
+        self.music_queue.pop(0)
+        voice_client.play(source, after=lambda e: self.play_audio(ctx))
