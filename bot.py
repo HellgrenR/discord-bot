@@ -15,47 +15,47 @@ class Bot(commands.Bot):
 
   def add_commands(self):
       @self.command()
-      async def play(ctx, *, url):
-          try:
-            voice_channel = ctx.author.voice.channel
-            await voice_channel.connect()
-          except AttributeError:
-            await ctx.send("Join a voice channel first")
-            return
-              
+      async def play(ctx, *, url: str):
+        try:
+          voice_channel = ctx.author.voice.channel
+          await voice_channel.connect()
+        except AttributeError:
+          await ctx.send("Join a voice channel first")
+          return
+            
 
-          voice_client = ctx.voice_client
+        voice_client = ctx.voice_client
 
-          # Add validation to check if the URL is valid
+        # Add validation to check if the URL is valid
 
-          # Add code to make the bot play the audio from the URL
-          ydl = yt_dlp.YoutubeDL()
+        # Add code to make the bot play the audio from the URL
+        ydl = yt_dlp.YoutubeDL()
 
-          with ydl:
-              info = ydl.extract_info(url, download=False)
-              await ctx.send(f"info title: {info['title']}")
+        with ydl:
+            info = ydl.extract_info(url, download=False)
+            await ctx.send(f"info title: {info['title']}")
 
 
-          # Disconnect bot if no longer playing
+        # Disconnect bot if no longer playing
 
       @self.command()
       async def ping(ctx):
-          await ctx.send('pong')
+        await ctx.send('pong')
 
       @self.command()
       async def hello(ctx):
-          await ctx.send(f"Hello! I'm {self.user}. How can I assist you today?")
+        await ctx.send(f"Hello! I'm {self.user}. How can I assist you today?")
 
       @self.command()
       async def join(ctx):
-          channel = ctx.author.voice.channel
-          await channel.connect()
+        channel = ctx.author.voice.channel
+        await channel.connect()
 
       @self.command()
       async def leave(ctx):
-          await ctx.voice_client.disconnect()
+        await ctx.voice_client.disconnect()
 
   def add_events(self):
       @self.event
       async def on_ready():
-          print(f"We have logged in as {self.user}")
+        print(f"We have logged in as {self.user}")
