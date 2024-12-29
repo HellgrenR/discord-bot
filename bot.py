@@ -37,8 +37,6 @@ class Bot(commands.Bot):
         if not ctx.voice_client.is_playing():
           await self.play_audio(ctx=ctx)
 
-        # if not playing for 10 secs, disconnect
-
       @self.command()
       async def join(ctx):
         channel = ctx.author.voice.channel
