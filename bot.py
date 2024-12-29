@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
-import yt_dlp
-import src.audio_finder as AudioFinder
+import src.audio_handler as AudioHandler
 import src.url_check as UrlCheck
 
 class Bot(commands.Bot):
@@ -15,36 +14,32 @@ class Bot(commands.Bot):
     self.add_commands()
     self.add_events()
 
+
   def add_commands(self):
       @self.command()
       async def play(ctx, *, url: str):
+        # Check if URL is valid
         if UrlCheck.url_check(url) == False:
           await ctx.send("Invalid URL")
           return
 
-        try:
-          voice_channel = ctx.author.voice.channel
-          await voice_channel.connect()
-        except AttributeError:
-          await ctx.send("User not in voice channel")
+        # Check if bot is in voice channel
+        if not self.is_connected(ctx=ctx):
+          await self.join_vc(ctx=ctx)
+
+        # Find audio URL
+        audio_url = await AudioHandler.find_audio(ctx=ctx, url=url)
+        if audio_url is None:
           return
 
-        try:
-          audio_url = AudioFinder.get_audio_url(url=url)
-        except yt_dlp.DownloadError:
-          await ctx.send("Could not find audio")
-          await ctx.voice_client.disconnect()
-          return
-        except AudioFinder.VideoTooLongError:
-          await ctx.send("Video too long")
-          await ctx.voice_client.disconnect()
-          return
+        # Add audio URL to queue
+        self.music_queue.append(audio_url)
+        ctx.send("Audio added to queue")
+        ctx.send(f"Music queue: {self.music_queue}")
 
-        source = discord.FFmpegPCMAudio(audio_url)
-        voice_client = ctx.voice_client
-        voice_client.play(source)
-
-        # Disconnect bot if no longer playing
+        # Play audio
+        if not ctx.voice_client.is_playing():
+          self.play_audio(ctx=ctx)
 
       @self.command()
       async def join(ctx):
@@ -52,10 +47,30 @@ class Bot(commands.Bot):
         await channel.connect()
 
       @self.command()
-      async def leave(ctx):
+      async def stop(ctx):
         await ctx.voice_client.disconnect()
+        self.music_queue = []
 
   def add_events(self):
       @self.event
       async def on_ready():
         print(f"We have logged in as {self.user}")
+  
+
+  def is_connected(self, ctx) -> bool:
+    return ctx.voice_client is not None and ctx.voice_client.is_connected()
+
+  async def join_vc(self, ctx):
+    try:
+      voice_channel = ctx.author.voice.channel
+      await voice_channel.connect()
+    except AttributeError:
+      await ctx.send("User not in voice channel")
+      return None
+    
+  def play_audio(self, ctx):
+    voice_client = ctx.voice_client
+    source = discord.FFmpegPCMAudio(self.music_queue[0])
+    voice_client.play(source)
+    self.music_queue.pop(0)
+    source = discord.FFmpegPCMAudio(self.music_queue[0])
