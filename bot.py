@@ -16,9 +16,15 @@ class Bot(commands.Bot):
   def add_commands(self):
       @self.command()
       async def play(ctx, *, url):
-          voice_channel = ctx.author.voice.channel
+          try:
+            voice_channel = ctx.author.voice.channel
+            await voice_channel.connect()
+          except AttributeError:
+            await ctx.send("Join a voice channel first")
+            return
+              
+
           voice_client = ctx.voice_client
-          await voice_channel.connect()
 
           # Add validation to check if the URL is valid
 
