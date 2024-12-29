@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import yt_dlp
 
 class Bot(commands.Bot):
   def __init__(self, prefix ):
@@ -7,7 +8,7 @@ class Bot(commands.Bot):
     intents.message_content = True
     super().__init__(command_prefix=prefix, intents=intents)
 
-    # Add a queue of music
+    self.music_queue = []
 
     self.add_commands()
     self.add_events()
@@ -16,10 +17,18 @@ class Bot(commands.Bot):
       @self.command()
       async def play(ctx, *, url):
           voice_channel = ctx.author.voice.channel
+          voice_client = ctx.voice_client
           await voice_channel.connect()
+
           # Add validation to check if the URL is valid
 
           # Add code to make the bot play the audio from the URL
+          ydl = yt_dlp.YoutubeDL()
+
+          with ydl:
+              info = ydl.extract_info(url, download=False)
+              await ctx.send(f"info title: {info['title']}")
+
 
           # Disconnect bot if no longer playing
 
