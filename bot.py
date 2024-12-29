@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import asyncio
 import src.audio_handler as AudioHandler
 import src.url_check as UrlCheck
 
@@ -27,19 +28,14 @@ class Bot(commands.Bot):
         if not self.is_connected(ctx=ctx):
           await self.join_vc(ctx=ctx)
 
-        # Find audio URL
-        audio_url = await AudioHandler.find_audio(ctx=ctx, url=url)
-        if audio_url is None:
-          return
-
         # Add audio URL to queue
-        self.music_queue.append(audio_url)
-        await ctx.send("Audio added to queue")
+        self.music_queue.append(url)
+        await ctx.send("Added to queue")
         await ctx.send(f"Amount of songs: {len(self.music_queue)}")
 
         # Play audio
         if not ctx.voice_client.is_playing():
-          self.play_audio(ctx=ctx)
+          await self.play_audio(ctx=ctx)
 
         # if not playing for 10 secs, disconnect
 
@@ -52,6 +48,10 @@ class Bot(commands.Bot):
       async def stop(ctx):
         await ctx.voice_client.disconnect()
         self.music_queue = []
+
+      @self.command()
+      async def queue(ctx):
+        await ctx.send(len(self.music_queue))
 
   def add_events(self):
       @self.event
@@ -70,9 +70,22 @@ class Bot(commands.Bot):
       await ctx.send("User not in voice channel")
       return None
   
-  def play_audio(self, ctx):
-    if len(self.music_queue) > 0:
-        voice_client = ctx.voice_client
-        source = discord.FFmpegPCMAudio(self.music_queue[0])
-        self.music_queue.pop(0)
-        voice_client.play(source, after=lambda e: self.play_audio(ctx))
+  async def play_audio(self, ctx):
+    if len(self.music_queue) == 0:
+      return
+
+    audio_url = await AudioHandler.find_audio(ctx=ctx, url=self.music_queue[0])
+
+    if audio_url:
+      source = discord.FFmpegPCMAudio(audio_url)
+      self.music_queue.pop(0)
+
+      def after_play(error):
+        if error:
+            print(f"Error in playback: {error}")
+        asyncio.run_coroutine_threadsafe(self.play_audio(ctx), self.loop)
+
+      ctx.voice_client.play(source, after=after_play)
+    else:
+      self.music_queue.pop(0)
+      self.play_audio(ctx)
