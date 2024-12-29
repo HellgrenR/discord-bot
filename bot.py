@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
+import yt_dlp
 import src.audio_finder as AudioFinder
+import src.url_check as UrlCheck
 
 class Bot(commands.Bot):
   def __init__(self, prefix ):
@@ -16,7 +18,9 @@ class Bot(commands.Bot):
   def add_commands(self):
       @self.command()
       async def play(ctx, *, url: str):
-        # Add validation to check if the URL is valid
+        if UrlCheck.url_check(url) == False:
+          await ctx.send("Invalid URL")
+          return
 
         try:
           voice_channel = ctx.author.voice.channel
@@ -25,7 +29,12 @@ class Bot(commands.Bot):
           await ctx.send("User not in voice channel")
           return
 
-        audio_url = AudioFinder.get_audio_url(url=url)
+        try:
+          audio_url = AudioFinder.get_audio_url(url=url)
+        except yt_dlp.DownloadError:
+          await ctx.send("Could not find audio")
+          await ctx.voice_client.disconnect()
+          return
 
         source = discord.FFmpegPCMAudio(audio_url)
         voice_client = ctx.voice_client
