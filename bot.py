@@ -22,7 +22,7 @@ class Bot(commands.Bot):
           voice_channel = ctx.author.voice.channel
           await voice_channel.connect()
         except AttributeError:
-          await ctx.send("Join a voice channel first")
+          await ctx.send("User not in voice channel")
           return
 
         audio_url = AudioFinder.get_audio_url(url=url)
@@ -32,14 +32,6 @@ class Bot(commands.Bot):
         voice_client.play(source)
 
         # Disconnect bot if no longer playing
-
-      @self.command()
-      async def ping(ctx):
-        await ctx.send('pong')
-
-      @self.command()
-      async def hello(ctx):
-        await ctx.send(f"Hello! I'm {self.user}. How can I assist you today?")
 
       @self.command()
       async def join(ctx):
