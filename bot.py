@@ -35,6 +35,10 @@ class Bot(commands.Bot):
           await ctx.send("Could not find audio")
           await ctx.voice_client.disconnect()
           return
+        except AudioFinder.VideoTooLongError:
+          await ctx.send("Video too long")
+          await ctx.voice_client.disconnect()
+          return
 
         source = discord.FFmpegPCMAudio(audio_url)
         voice_client = ctx.voice_client
