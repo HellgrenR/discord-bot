@@ -4,6 +4,6 @@ from bot import Bot
 
 load_dotenv()
 
-bot = Bot('!')
+bot = Bot(prefix='!')
 
-bot.run(os.getenv("DISCORD_BOT_TOKEN"))
+bot.run(token=os.getenv("DISCORD_BOT_TOKEN"))
