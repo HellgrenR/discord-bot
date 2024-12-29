@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import yt_dlp
+import src.audio_finder as AudioFinder
 
 class Bot(commands.Bot):
   def __init__(self, prefix ):
@@ -24,21 +24,11 @@ class Bot(commands.Bot):
         except AttributeError:
           await ctx.send("Join a voice channel first")
           return
-            
 
-        voice_client = ctx.voice_client
-
-        # Add code to make the bot play the audio from the URL
-        ydl_opts = {
-          'format': 'bestaudio/best',
-          'noplaylist': True,
-        }
-
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-          info = ydl.extract_info(url, download=False)
-          audio_url = info['url']
+        audio_url = AudioFinder.get_audio_url(url=url)
 
         source = discord.FFmpegPCMAudio(audio_url)
+        voice_client = ctx.voice_client
         voice_client.play(source)
 
         # Disconnect bot if no longer playing
