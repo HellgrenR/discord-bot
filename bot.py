@@ -16,6 +16,8 @@ class Bot(commands.Bot):
   def add_commands(self):
       @self.command()
       async def play(ctx, *, url: str):
+        # Add validation to check if the URL is valid
+
         try:
           voice_channel = ctx.author.voice.channel
           await voice_channel.connect()
@@ -26,15 +28,18 @@ class Bot(commands.Bot):
 
         voice_client = ctx.voice_client
 
-        # Add validation to check if the URL is valid
-
         # Add code to make the bot play the audio from the URL
-        ydl = yt_dlp.YoutubeDL()
+        ydl_opts = {
+          'format': 'bestaudio/best',
+          'noplaylist': True,
+        }
 
-        with ydl:
-            info = ydl.extract_info(url, download=False)
-            await ctx.send(f"info title: {info['title']}")
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+          info = ydl.extract_info(url, download=False)
+          audio_url = info['url']
 
+        source = discord.FFmpegPCMAudio(audio_url)
+        voice_client.play(source)
 
         # Disconnect bot if no longer playing
 
