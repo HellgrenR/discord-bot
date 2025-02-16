@@ -4,6 +4,7 @@ import asyncio
 import src.audio_handler as AudioHandler
 import src.url_check as UrlCheck
 
+#fel fixa detta
 class Bot(commands.Bot):
   def __init__(self, prefix ):
     intents = discord.Intents.default()
