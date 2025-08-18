@@ -1,0 +1,36 @@
+name: Build and Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare Environment
+        run: |
+          COMMIT_SHORT_ID=$(git rev-parse HEAD | cut -c 1-7)
+          echo "COMMIT_SHORT_ID=${COMMIT_SHORT_ID}" >> $GITHUB_ENV
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build docker image with multiple tags
+        run: |
+          docker build \
+            -t discordbot:latest \
+            -t discordbot:${{ env.COMMIT_SHORT_ID }} \
+            .
+
+      - name: Push docker images
+        run: |
+          docker push discordbot:latest
+          docker push discordbot:${{ env.COMMIT_SHORT_ID }}
+
