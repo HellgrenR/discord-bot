@@ -29,8 +29,8 @@ jobs:
             -t discordbot:${{ env.COMMIT_SHORT_ID }} \
             .
 
-      - name: Push docker images
-        run: |
-          docker push discordbot:latest
-          docker push discordbot:${{ env.COMMIT_SHORT_ID }}
+      # - name: Push docker images
+      #   run: |
+      #     docker push discordbot:latest
+      #     docker push discordbot:${{ env.COMMIT_SHORT_ID }}
 
