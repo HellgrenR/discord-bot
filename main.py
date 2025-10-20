@@ -6,4 +6,8 @@ load_dotenv()
 
 bot = Bot(prefix='!')
 
-bot.run(token=os.getenv("DISCORD_BOT_TOKEN"))
+token = os.getenv("DISCORD_BOT_TOKEN")
+if token is None:
+    raise ValueError("DISCORD_BOT_TOKEN is not set in the environment variables.")
+
+bot.run(token=token)
