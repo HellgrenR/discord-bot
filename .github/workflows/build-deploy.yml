@@ -25,8 +25,9 @@ jobs:
       - name: Build docker image with multiple tags
         run: |
           docker build --platform linux/amd64 \
-          -t ghcr.io/hellgrenr/discord-bot:latest \
-          -t ghcr.io/hellgrenr/discord-bot:${{ env.COMMIT_SHORT_ID }} \
+            -t ghcr.io/hellgrenr/discord-bot:latest \
+            -t ghcr.io/hellgrenr/discord-bot:${{ env.COMMIT_SHORT_ID }} \
+            .
 
       - name: Push docker images
         run: |
