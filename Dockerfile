@@ -1,12 +1,12 @@
 FROM python:3.9-slim
 WORKDIR /usr/src/app
 
+# Make sure ffmpeg is installed
+RUN apt-get update && apt-get install -y ffmpeg
+
 # Install the application dependencies
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Make sure ffmpeg is installed
-RUN apt-get update && apt-get install -y ffmpeg
 
 # Copy in the source code
 COPY . .
